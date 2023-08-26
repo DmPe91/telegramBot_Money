@@ -1,0 +1,24 @@
+{
+  "name": "telegrambot_money",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DmPe91/telegramBot_Money.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DmPe91/telegramBot_Money/issues"
+  },
+  "homepage": "https://github.com/DmPe91/telegramBot_Money#readme",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "currency-codes": "^2.1.0",
+    "telegraf": "^4.12.2"
+  }
+}
