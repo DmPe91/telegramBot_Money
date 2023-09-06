@@ -4,10 +4,13 @@ const utils = require("./utils");
 const axios = require("axios");
 const cc = require("currency-codes");
 const convert = require("xml-js");
-const dec = new TextDecoder("windows-1251");
 
-const valute_Api = () => {
-  axios
+const dec = new TextDecoder("windows-1251");
+let valute_rates;
+let date_rates;
+let sum, variant;
+const valute_Api = async () => {
+  await axios
     .get("http://www.cbr.ru/scripts/XML_daily.asp", {
       responseType: "arraybuffer",
       responseEncoding: "binary",
@@ -15,8 +18,8 @@ const valute_Api = () => {
     .then((res) => {
       const dec_valute = dec.decode(Buffer.from(res.data));
       var valute = convert.xml2js(dec_valute, { compact: true });
-
-      return valute.ValCurs.Valute;
+      date_rates = valute.ValCurs._attributes.Date;
+      valute_rates = valute.ValCurs.Valute;
     })
     .catch((err) => {
       console.log(err);
@@ -40,12 +43,58 @@ bot.help((ctx) => {
   ctx.reply(utils.commands);
 });
 
-bot.hears("Курс валют", async (ctx) => {
-  const valute = valute_Api;
-  await console.log(valute);
-  ctx.reply("Выберите валюту");
+bot.hears("Курс валют", (ctx) => {
+  valute_Api().then(() => {
+    console.log(valute_rates);
+    const test_arr = valute_rates.map((el) => {
+      return [
+        {
+          text: `${el.CharCode._text} ${el.Name._text}`,
+          callback_data: el.CharCode._text,
+        },
+      ];
+    });
+    ctx.reply(`Акутальный курс ЦБ РФ ${date_rates}.Выберите валюту:`, {
+      reply_markup: { inline_keyboard: test_arr },
+    });
+  });
 });
-
+bot.hears("Конвертер валют", (ctx) => {
+  ctx.reply("Конвертировать во что", {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: "В рубли", callback_data: "rub" },
+          { text: "В валюту", callback_data: "val" },
+        ],
+      ],
+    },
+  });
+});
+bot.action("rub", (ctx) => {
+  variant = "rub";
+  ctx.reply("Введите сумму");
+});
+bot.action("val", (ctx) => {
+  variant = "val";
+  ctx.reply("Введите сумму");
+});
+bot.hears(/[\d.,]*$/, (ctx) => {
+  sum = ctx.message.text;
+  valute_Api().then(() => {
+    const test_arr = valute_rates.map((el) => {
+      return [
+        {
+          text: `${el.CharCode._text} ${el.Name._text}`,
+          callback_data: el.CharCode._text,
+        },
+      ];
+    });
+    ctx.reply(`Выберите валюту:`, {
+      reply_markup: { inline_keyboard: test_arr },
+    });
+  });
+});
 bot.hears("hi", (ctx) => {
   axios
     .get("http://www.cbr.ru/scripts/XML_daily.asp", {
@@ -65,8 +114,9 @@ bot.hears("hi", (ctx) => {
     });
 });
 
-bot.hears(/^[A-Z]+$/i, (ctx) => {
-  const currency = cc.code(ctx.message.text);
+bot.action(/^[A-Z]+$/i, (ctx) => {
+  console.log(ctx.update.callback_query.data);
+  const currency = cc.code(ctx.update.callback_query.data);
 
   if (!currency) {
     return ctx.reply("Валюта не найдена!");
@@ -77,7 +127,22 @@ bot.hears(/^[A-Z]+$/i, (ctx) => {
       const valute = res.data.Valute;
       for (let key in valute) {
         if (valute[key].NumCode === currency.number) {
-          return ctx.reply(String(valute[key].Value));
+          console.log(Number(valute[key].Value));
+          console.log(Number[sum]);
+          if (variant === "rub") {
+            var result = Number(sum) * Number(valute[key].Value);
+
+            return ctx.reply(`${result} ${valute[key].Name} в ${sum} рублях`);
+          }
+          if (variant === "val") {
+            var result = (1 / Number(valute[key].Value)) * Number(sum);
+
+            return ctx.reply(`${result} Рублей в ${sum} в ${valute[key].Name}`);
+          } else {
+            return ctx.reply(
+              String(`${valute[key].Value} ${valute[key].Name}`)
+            );
+          }
         }
       }
     })
