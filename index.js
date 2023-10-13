@@ -45,7 +45,6 @@ bot.help((ctx) => {
 
 bot.hears("Курс валют", (ctx) => {
   valute_Api().then(() => {
-    console.log(valute_rates);
     const test_arr = valute_rates.map((el) => {
       return [
         {
@@ -125,19 +124,19 @@ bot.action(/^[A-Z]+$/i, (ctx) => {
     .get("https://www.cbr-xml-daily.ru/daily_json.js")
     .then((res) => {
       const valute = res.data.Valute;
+
       for (let key in valute) {
         if (valute[key].NumCode === currency.number) {
           console.log(Number(valute[key].Value));
-          console.log(Number[sum]);
+          sum = Number(sum);
+          console.log(sum);
           if (variant === "rub") {
-            var result = Number(sum) * Number(valute[key].Value);
-
-            return ctx.reply(`${result} ${valute[key].Name} в ${sum} рублях`);
+            var result = sum * (valute[key].Value / valute[key].Nominal);
+            return ctx.reply(`${result} рублей  в ${sum} ${valute[key].Name}`);
           }
           if (variant === "val") {
-            var result = (1 / Number(valute[key].Value)) * Number(sum);
-
-            return ctx.reply(`${result} Рублей в ${sum} в ${valute[key].Name}`);
+            var result = (1 / (valute[key].Value / valute[key].Nominal)) * sum;
+            return ctx.reply(`${result} ${valute[key].Name} в ${sum} в рублях`);
           } else {
             return ctx.reply(
               String(`${valute[key].Value} ${valute[key].Name}`)
