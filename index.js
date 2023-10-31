@@ -30,7 +30,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.command("start", (ctx) => {
   ctx.reply(
-    `Добро пожаловать ${
+    `Добро пожаловать, ${
       ctx.message.from.first_name
         ? ctx.message.from.first_name
         : "пользователь без имени"
@@ -48,7 +48,7 @@ bot.hears("Курс валют", (ctx) => {
     const test_arr = valute_rates.map((el) => {
       return [
         {
-          text: `${el.CharCode._text} ${el.Name._text}`,
+          text: `1 ${el.Name._text} = ${el.CharCode._text} рублей`,
           callback_data: el.CharCode._text,
         },
       ];
