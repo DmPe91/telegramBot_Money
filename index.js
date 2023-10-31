@@ -48,7 +48,7 @@ bot.hears("Курс валют", (ctx) => {
     const test_arr = valute_rates.map((el) => {
       return [
         {
-          text: `1 ${el.Name._text} = ${el.CharCode._text} рублей`,
+          text: `${el.CharCode._text} ${el.Name._text}`,
           callback_data: el.CharCode._text,
         },
       ];
@@ -94,31 +94,12 @@ bot.hears(/[\d.,]*$/, (ctx) => {
     });
   });
 });
-bot.hears("hi", (ctx) => {
-  axios
-    .get("http://www.cbr.ru/scripts/XML_daily.asp", {
-      responseType: "arraybuffer",
-      responseEncoding: "binary",
-    })
-    .then((res) => {
-      const dec_valute = dec.decode(Buffer.from(res.data));
-      var valute = convert.xml2js(dec_valute, { compact: true });
-      console.log(valute.ValCurs.Valute[0]);
-
-      ctx.reply(valute.ValCurs.Valute[0].Name._text);
-    })
-    .catch((err) => {
-      console.log(err);
-      return ctx.reply("error");
-    });
-});
 
 bot.action(/^[A-Z]+$/i, (ctx) => {
-  console.log(ctx.update.callback_query.data);
   const currency = cc.code(ctx.update.callback_query.data);
 
   if (!currency) {
-    return ctx.reply("Валюта не найдена!");
+    return ctx.reply("Валюта не найдена!Воспользуйтес меню");
   }
   axios
     .get("https://www.cbr-xml-daily.ru/daily_json.js")
@@ -139,7 +120,7 @@ bot.action(/^[A-Z]+$/i, (ctx) => {
             return ctx.reply(`${result} ${valute[key].Name} в ${sum} в рублях`);
           } else {
             return ctx.reply(
-              String(`${valute[key].Value} ${valute[key].Name}`)
+              String(`1 ${valute[key].Name} = ${valute[key].Value} рублей`)
             );
           }
         }
