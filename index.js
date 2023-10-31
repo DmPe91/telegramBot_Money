@@ -110,19 +110,23 @@ bot.action(/^[A-Z]+$/i, (ctx) => {
         if (valute[key].NumCode === currency.number) {
           console.log(Number(valute[key].Value));
           sum = Number(sum);
-          console.log(sum);
+
           if (variant === "rub") {
             var result = sum * (valute[key].Value / valute[key].Nominal);
             variant = "";
-            return ctx.reply(`${result} рублей  в ${sum} ${valute[key].Name}`);
+            return ctx.reply(
+              `${result} рублей  в ${sum} ${valute[key].CharCode}`
+            );
           }
           if (variant === "val") {
             var result = (1 / (valute[key].Value / valute[key].Nominal)) * sum;
             variant = "";
-            return ctx.reply(`${result} ${valute[key].Name} в ${sum} в рублях`);
+            return ctx.reply(
+              `${result} ${valute[key].CharCode} в ${sum} в рублях`
+            );
           } else {
             return ctx.reply(
-              String(`1 ${valute[key].Name} = ${valute[key].Value} рублей`)
+              String(`1 ${valute[key].CharCode} = ${valute[key].Value} рублей`)
             );
           }
         }
