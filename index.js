@@ -113,10 +113,12 @@ bot.action(/^[A-Z]+$/i, (ctx) => {
           console.log(sum);
           if (variant === "rub") {
             var result = sum * (valute[key].Value / valute[key].Nominal);
+            variant = "";
             return ctx.reply(`${result} рублей  в ${sum} ${valute[key].Name}`);
           }
           if (variant === "val") {
             var result = (1 / (valute[key].Value / valute[key].Nominal)) * sum;
+            variant = "";
             return ctx.reply(`${result} ${valute[key].Name} в ${sum} в рублях`);
           } else {
             return ctx.reply(
